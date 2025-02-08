@@ -1,17 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export function Popup() {
-  const [count, setCount] = useState(0);
+  const [content, setContent] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const getCurrentTab = async () => {
+      const [tab] = await chrome.tabs.query({
+        active: true,
+        currentWindow: true,
+      });
+
+      if (tab.id) {
+        try {
+          const response = await chrome.tabs.sendMessage(tab.id, {
+            action: "getPageContent",
+          });
+          setContent(response.content || "No content found");
+        } catch (error) {
+          console.error("Error:", error);
+          setContent(`Failed to load content: ${error}`);
+        }
+      }
+      setIsLoading(false);
+    };
+
+    getCurrentTab();
+  }, []);
 
   return (
-    <div className="w-[300px] p-4">
-      <h1 className="text-xl font-bold mb-4">Chrome Extension Popup</h1>
-      <button
-        className="px-4 py-2 bg-blue-500 text-white rounded"
-        onClick={() => setCount((count) => count + 1)}
-      >
-        count is {count}
-      </button>
+    <div className="w-[400px] h-[600px] p-4 overflow-auto">
+      <h1 className="text-xl font-bold mb-4">Page Content</h1>
+      {isLoading ? (
+        <div className="flex justify-center items-center h-32">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+        </div>
+      ) : (
+        <div className="whitespace-pre-wrap">{content}</div>
+      )}
     </div>
   );
 }

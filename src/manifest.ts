@@ -1,12 +1,12 @@
 const manifest = {
   manifest_version: 3,
-  name: "Chrome Extension",
+  name: "Writer AI Extension",
   version: "1.0.0",
-  description: "Chrome Extension with React & TypeScript",
+  description: "AI writing assistant for Chrome",
   action: {
     default_popup: "index.html",
   },
-  permissions: ["storage", "tabs"],
+  permissions: ["storage", "tabs", "activeTab"],
   background: {
     service_worker: "src/background/index.ts",
     type: "module",
